@@ -30,6 +30,7 @@ build_script:
   - cmake --build . --config %CONFIGURATION% -j8
 after_build:
   - 7z a uncrustify.zip c:\projects\uncrustify\build
+  - appveyor PushArtifact uncrustify.zip
   - pwd
   - dir
 test_script:
@@ -38,6 +39,6 @@ test_script:
 #  - set PYTHONIOENCODING=utf-8
 #  - python ../scripts/run_ctest.py -- -C %CONFIGURATION%
 artifacts:
-  - path: ./uncrustify.zip
+  - path: Debug
     name: uncrustify
 deploy: off
