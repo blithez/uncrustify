@@ -27,7 +27,7 @@ before_build:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DUNCRUSTIFY_SEPARATE_TESTS=ON -G "%GENERATOR%" ..
 build_script:
-  - cmake --build . --config %CONFIGURATION%
+  - cmake --build . --config %CONFIGURATION% -j8
 after_build:
   - 7z a uncrustify.zip c:\projects\uncrustify\build
 test_script:
@@ -35,4 +35,7 @@ test_script:
 #  - C:/projects/uncrustify/build/Debug/uncrustify.exe -c C:/projects/uncrustify/tests/config/mono.cfg -f C:/projects/uncrustify/tests/input/cs/simple.cs -L 66
   - set PYTHONIOENCODING=utf-8
   - python ../scripts/run_ctest.py -- -C %CONFIGURATION%
+artifacts:
+  - path: uncrustify.zip
+    name: uncrustify
 deploy: off
