@@ -34,5 +34,5 @@ test_script:
 #  - set PYTHONIOENCODING=utf-8
 #  - python ../scripts/run_ctest.py -- -C %CONFIGURATION%
 artifacts:
-  - path: build\Debug\uncrustify.exe
+  - path: build\**\uncrustify.exe
 deploy: off
