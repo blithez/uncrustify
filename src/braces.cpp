@@ -1115,6 +1115,7 @@ void add_long_closebrace_comment(void)
             if (tag_pc != nullptr)
             {
                append_tag_name(xstr, tag_pc);
+               xstr.append("()");
             }
          }
          else if (get_chunk_parent_type(br_open) == CT_SWITCH && sw_pc != nullptr)
