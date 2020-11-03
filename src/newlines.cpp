@@ -3266,7 +3266,7 @@ static void newline_func_def_or_call(chunk_t *start)
       prev = chunk_get_prev_ncnlni(start);   // Issue #2279
       if (prev != nullptr)
       {
-          newline_iarf(prev, REMOVE);
+          newline_iarf(prev, IARF_REMOVE);
       }
    }
 
