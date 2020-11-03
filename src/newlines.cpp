@@ -3261,6 +3261,13 @@ static void newline_func_def_or_call(chunk_t *start)
       {
          ae = atmp;
       }
+
+      /* Remove newline between function name and (, if only 1 parameter */
+      prev = chunk_get_prev_ncnlni(start);   // Issue #2279
+      if (prev != nullptr)
+      {
+          newline_iarf(prev, REMOVE);
+      }
    }
 
    if (!is_call)
