@@ -2094,6 +2094,10 @@ nl_func_paren;
 extern Option<iarf_e>
 nl_func_paren_empty;
 
+// Overrides nl_func_paren for functions with one parameter.
+extern Option<iarf_e>
+nl_func_paren_decl_single;
+
 // Add or remove newline between a function name and the opening '(' in the
 // definition.
 extern Option<iarf_e>
@@ -2103,6 +2107,10 @@ nl_func_def_paren;
 extern Option<iarf_e>
 nl_func_def_paren_empty;
 
+// Overrides nl_func_def_paren for functions with one parameter.
+extern Option<iarf_e>
+nl_func_def_paren_single;
+
 // Add or remove newline between a function name and the opening '(' in the
 // call.
 extern Option<iarf_e>
@@ -2111,6 +2119,10 @@ nl_func_call_paren;
 // Overrides nl_func_call_paren for functions with no parameters.
 extern Option<iarf_e>
 nl_func_call_paren_empty;
+
+// Overrides nl_func_call_paren for functions with one parameter.
+extern Option<iarf_e>
+nl_func_call_paren_single;
 
 // Add or remove newline after '(' in a function declaration.
 extern Option<iarf_e>

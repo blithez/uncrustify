@@ -3240,6 +3240,10 @@ static void newline_func_def_or_call(chunk_t *start)
    log_rule_B("nl_func_decl_end");
    iarf_e ae = is_def ? options::nl_func_def_end() : options::nl_func_decl_end();
 
+   log_rule_B("nl_func_paren_decl_single");
+   log_rule_B("nl_func_def_paren_single");
+   iarf_e ap = is_def ? options::nl_func_def_paren_single() : options::nl_func_paren_decl_single();
+
    if (comma_count == 0)
    {
       iarf_e atmp;
@@ -3261,18 +3265,34 @@ static void newline_func_def_or_call(chunk_t *start)
       {
          ae = atmp;
       }
-
-      /* Remove newline between function name and (, if only 1 parameter */
-      prev = chunk_get_prev_ncnlni(start);   // Issue #2279
-      if (prev != nullptr)
-      {
-          newline_iarf(prev, IARF_REMOVE);
-      }
    }
 
    if (!is_call)
    {
       newline_iarf(start, as);
+
+      /* Remove newline between function name and (, if only 1 parameter */
+      if( ap != IARF_IGNORE )
+      {
+         prev = chunk_get_prev_ncnlni(start);
+         if (prev != nullptr)
+         {
+             newline_iarf(prev, ap);
+         }
+      }
+   }
+   else
+   {
+      /* Remove newline between function name and (, if only 1 parameter */
+      log_rule_B("nl_func_call_paren_single");
+      if( options::nl_func_call_paren_single() != IARF_IGNORE )
+      {
+         prev = chunk_get_prev_ncnlni(start);
+         if (prev != nullptr)
+         {
+            newline_iarf(prev, options::nl_func_call_paren_single());
+         }
+      }
    }
 
    // and fix up the close parenthesis
