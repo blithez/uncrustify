@@ -3242,7 +3242,7 @@ static void newline_func_def_or_call(chunk_t *start)
 
    log_rule_B("nl_func_paren_decl_single");
    log_rule_B("nl_func_def_paren_single");
-   iarf_e ap = is_def ? options::nl_func_def_paren_single() : options::nl_func_paren_decl_single();
+   iarf_e ap = IARF_IGNORE;
 
    if (comma_count == 0)
    {
@@ -3265,6 +3265,8 @@ static void newline_func_def_or_call(chunk_t *start)
       {
          ae = atmp;
       }
+
+      ap = is_call ? options::nl_func_call_paren_single() : (is_def ? options::nl_func_def_paren_single() : options::nl_func_paren_decl_single());
    }
 
    if (!is_call)
@@ -3285,12 +3287,12 @@ static void newline_func_def_or_call(chunk_t *start)
    {
       /* Remove newline between function name and (, if only 1 parameter */
       log_rule_B("nl_func_call_paren_single");
-      if( options::nl_func_call_paren_single() != IARF_IGNORE )
+      if( ap != IARF_IGNORE )
       {
          prev = chunk_get_prev_ncnlni(start);
          if (prev != nullptr)
          {
-            newline_iarf(prev, options::nl_func_call_paren_single());
+            newline_iarf(prev, ap);
          }
       }
    }
