@@ -1811,7 +1811,8 @@ static void newlines_namespace(chunk_t *start)
 
    LOG_FMT(LNEWLINE, "%s(%d): braceOpen->orig_line is %zu, orig_col is %zu, text() is '%s'\n",
            __func__, __LINE__, braceOpen->orig_line, braceOpen->orig_col, braceOpen->text());
-   log_pcf_flags(LNEWLINE, braceOpen->flags);
+   // produces much more log output. Use it only debugging purpose
+   //log_pcf_flags(LNEWLINE, braceOpen->flags);
 
    if (braceOpen->flags.test(PCF_ONE_LINER))
    {
@@ -4289,9 +4290,10 @@ void newlines_cleanup_braces(bool first)
 
                for (chunk_t *temp = pc; temp != end; temp = chunk_get_next(temp))
                {
-                  LOG_FMT(LNEWLINE, "%s(%d): text() is '%s', type is %s, level is %zu\n   ",
+                  LOG_FMT(LNEWLINE, "%s(%d): text() is '%s', type is %s, level is %zu\n",
                           __func__, __LINE__, temp->text(), get_token_name(temp->type), temp->level);
-                  log_pcf_flags(LNEWLINE, temp->flags);
+                  // produces much more log output. Use it only debugging purpose
+                  //log_pcf_flags(LNEWLINE, temp->flags);
                   chunk_flags_clr(temp, PCF_ONE_LINER);
                }
 
@@ -4673,7 +4675,8 @@ void newlines_cleanup_braces(bool first)
                }
                LOG_FMT(LNEWLINE, "%s(%d): braceOpen->orig_line is %zu, orig_col is %zu, text() is '%s'\n",
                        __func__, __LINE__, braceOpen->orig_line, braceOpen->orig_col, braceOpen->text());
-               log_pcf_flags(LNEWLINE, braceOpen->flags);
+               // produces much more log output. Use it only debugging purpose
+               //log_pcf_flags(LNEWLINE, braceOpen->flags);
                newlines_namespace(pc);
             }
          }
@@ -5265,7 +5268,8 @@ void newlines_chunk_pos(c_token_t chunk_type, token_pos_e mode)
    {
       LOG_FMT(LNEWLINE, "%s(%d): pc->orig_line is %zu, orig_col is %zu, text() is '%s'\n   ",
               __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
-      log_pcf_flags(LNEWLINE, pc->flags);
+      // produces much more log output. Use it only debugging purpose
+      //log_pcf_flags(LNEWLINE, pc->flags);
 
       if (chunk_is_token(pc, chunk_type))
       {
@@ -5275,7 +5279,8 @@ void newlines_chunk_pos(c_token_t chunk_type, token_pos_e mode)
          {
             LOG_FMT(LNEWLINE, "%s(%d): orig_line is %zu, orig_col is %zu, text() is '%s', type is %s\n   ",
                     __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
-            log_pcf_flags(LNEWLINE, pc->flags);
+            // produces much more log output. Use it only debugging purpose
+            //log_pcf_flags(LNEWLINE, pc->flags);
 
             if (pc->flags.test(PCF_IN_CONST_ARGS)) // Issue #2250
             {
