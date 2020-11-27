@@ -820,15 +820,15 @@ void chunk_flags_set_real(chunk_t *pc, pcf_flags_t clr_bits, pcf_flags_t set_bit
       if (pc->flags != nflags)
       {
          LOG_FMT(LSETFLG,
-                 "%s(%d): %016llx^%016llx=%016llx "
-                 "orig_line is %zu, orig_col is %zu, text() '%s', type is %s, ",
+                 "%s(%d): %016llx^%016llx=%016llx\n"
+                 "   orig_line is %zu, orig_col is %zu, text() '%s', type is %s,",
                  __func__, __LINE__,
                  static_cast<pcf_flags_t::int_t>(pc->flags),
                  static_cast<pcf_flags_t::int_t>(pc->flags ^ nflags),
                  static_cast<pcf_flags_t::int_t>(nflags),
                  pc->orig_line, pc->orig_col, pc->text(),
                  get_token_name(pc->type));
-         LOG_FMT(LSETFLG, "parent_type is %s",
+         LOG_FMT(LSETFLG, " parent_type is %s,\n  ",
                  get_token_name(get_chunk_parent_type(pc)));
          log_func_stack_inline(LSETFLG);
          pc->flags = nflags;
@@ -1069,4 +1069,41 @@ c_token_t get_type_of_the_parent(chunk_t *pc)
       return(CT_PARENT_NOT_SET);
    }
    return(pc->parent->type);
+}
+
+
+bool chunk_is_attribute_or_declspec(chunk_t *pc)
+{
+   return(  language_is_set(LANG_CPP)
+         && (  chunk_is_token(pc, CT_ATTRIBUTE)
+            || chunk_is_token(pc, CT_DECLSPEC)));
+}
+
+
+bool chunk_is_class_enum_struct_union(chunk_t *pc)
+{
+   return(  chunk_is_class_or_struct(pc)
+         || chunk_is_enum(pc)
+         || chunk_is_token(pc, CT_UNION));
+}
+
+
+bool chunk_is_class_or_struct(chunk_t *pc)
+{
+   return(  chunk_is_token(pc, CT_CLASS)
+         || chunk_is_token(pc, CT_STRUCT));
+}
+
+
+bool chunk_is_class_struct_union(chunk_t *pc)
+{
+   return(  chunk_is_class_or_struct(pc)
+         || chunk_is_token(pc, CT_UNION));
+}
+
+
+bool chunk_is_enum(chunk_t *pc)
+{
+   return(  chunk_is_token(pc, CT_ENUM)
+         || chunk_is_token(pc, CT_ENUM_CLASS));
 }
