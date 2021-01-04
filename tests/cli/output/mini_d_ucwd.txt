@@ -861,26 +861,33 @@ sp_case_label                   = ignore   # ignore/add/remove/force
 sp_range                        = ignore   # ignore/add/remove/force
 
 # Add or remove space after ':' in a Java/C++11 range-based 'for',
-# as in 'for (Type var : expr)'.
+# as in 'for (Type var : <here> expr)'.
 sp_after_for_colon              = ignore   # ignore/add/remove/force
 
 # Add or remove space before ':' in a Java/C++11 range-based 'for',
-# as in 'for (Type var : expr)'.
+# as in 'for (Type var <here> : expr)'.
 sp_before_for_colon             = ignore   # ignore/add/remove/force
 
-# (D) Add or remove space between 'extern' and '(' as in 'extern (C)'.
+# (D) Add or remove space between 'extern' and '(' as in 'extern <here> (C)'.
 sp_extern_paren                 = ignore   # ignore/add/remove/force
 
-# Add or remove space after the opening of a C++ comment,
-# i.e. '// A' vs. '//A'.
+# Add or remove space after the opening of a C++ comment, as in '// <here> A'.
 sp_cmt_cpp_start                = ignore   # ignore/add/remove/force
 
-# If true, space is added with sp_cmt_cpp_start will be added after doxygen
+# Add or remove space in a C++ region marker comment, as in '// <here> BEGIN'.
+# A region marker is defined as a comment which is not preceded by other text
+# (i.e. the comment is the first non-whitespace on the line), and which starts
+# with either 'BEGIN' or 'END'.
+#
+# Overrides sp_cmt_cpp_start.
+sp_cmt_cpp_region               = ignore   # ignore/add/remove/force
+
+# If true, space added with sp_cmt_cpp_start will be added after Doxygen
 # sequences like '///', '///<', '//!' and '//!<'.
 sp_cmt_cpp_doxygen              = false    # true/false
 
-# If true, space is added with sp_cmt_cpp_start will be added after Qt
-# translator or meta-data comments like '//:', '//=', and '//~'.
+# If true, space added with sp_cmt_cpp_start will be added after Qt translator
+# or meta-data comments like '//:', '//=', and '//~'.
 sp_cmt_cpp_qttr                 = false    # true/false
 
 # Add or remove space between #else or #endif and a trailing comment.
@@ -2015,13 +2022,16 @@ nl_max                          = 0        # unsigned number
 nl_max_blank_in_func            = 0        # unsigned number
 
 # The number of newlines inside an empty function body.
-# This option is overridden by nl_collapse_empty_body=true
+# This option overrides eat_blanks_after_open_brace and
+# eat_blanks_before_close_brace, but is ignored when
+# nl_collapse_empty_body=true
 nl_inside_empty_func            = 0        # unsigned number
 
 # The number of newlines before a function prototype.
 nl_before_func_body_proto       = 0        # unsigned number
 
-# The number of newlines before a multi-line function definition.
+# The number of newlines before a multi-line function definition. Where
+# applicable, this option is overridden with eat_blanks_after_open_brace=true
 nl_before_func_body_def         = 0        # unsigned number
 
 # The number of newlines before a class constructor/destructor prototype.
@@ -2623,7 +2633,7 @@ cmt_width                       = 0        # unsigned number
 #
 # 0: No reflowing (apart from the line wrapping due to cmt_width) (default)
 # 1: No touching at all
-# 2: Full reflow
+# 2: Full reflow (enable cmt_indent_multi for indent with line wrapping due to cmt_width)
 cmt_reflow_mode                 = 0        # unsigned number
 
 # Whether to convert all tabs to spaces in comments. If false, tabs in

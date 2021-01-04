@@ -1068,31 +1068,39 @@ extern Option<iarf_e>
 sp_range;
 
 // Add or remove space after ':' in a Java/C++11 range-based 'for',
-// as in 'for (Type var : expr)'.
+// as in 'for (Type var : <here> expr)'.
 extern Option<iarf_e>
 sp_after_for_colon;
 
 // Add or remove space before ':' in a Java/C++11 range-based 'for',
-// as in 'for (Type var : expr)'.
+// as in 'for (Type var <here> : expr)'.
 extern Option<iarf_e>
 sp_before_for_colon;
 
-// (D) Add or remove space between 'extern' and '(' as in 'extern (C)'.
+// (D) Add or remove space between 'extern' and '(' as in 'extern <here> (C)'.
 extern Option<iarf_e>
 sp_extern_paren;
 
-// Add or remove space after the opening of a C++ comment,
-// i.e. '// A' vs. '//A'.
+// Add or remove space after the opening of a C++ comment, as in '// <here> A'.
 extern Option<iarf_e>
 sp_cmt_cpp_start;
 
-// If true, space is added with sp_cmt_cpp_start will be added after doxygen
+// Add or remove space in a C++ region marker comment, as in '// <here> BEGIN'.
+// A region marker is defined as a comment which is not preceded by other text
+// (i.e. the comment is the first non-whitespace on the line), and which starts
+// with either 'BEGIN' or 'END'.
+//
+// Overrides sp_cmt_cpp_start.
+extern Option<iarf_e>
+sp_cmt_cpp_region;
+
+// If true, space added with sp_cmt_cpp_start will be added after Doxygen
 // sequences like '///', '///<', '//!' and '//!<'.
 extern Option<bool>
 sp_cmt_cpp_doxygen;
 
-// If true, space is added with sp_cmt_cpp_start will be added after Qt
-// translator or meta-data comments like '//:', '//=', and '//~'.
+// If true, space added with sp_cmt_cpp_start will be added after Qt translator
+// or meta-data comments like '//:', '//=', and '//~'.
 extern Option<bool>
 sp_cmt_cpp_qttr;
 
@@ -2511,7 +2519,9 @@ extern BoundedOption<unsigned, 0, 16>
 nl_max_blank_in_func;
 
 // The number of newlines inside an empty function body.
-// This option is overridden by nl_collapse_empty_body=true
+// This option overrides eat_blanks_after_open_brace and
+// eat_blanks_before_close_brace, but is ignored when
+// nl_collapse_empty_body=true
 extern BoundedOption<unsigned, 0, 16>
 nl_inside_empty_func;
 
@@ -2519,7 +2529,8 @@ nl_inside_empty_func;
 extern BoundedOption<unsigned, 0, 16>
 nl_before_func_body_proto;
 
-// The number of newlines before a multi-line function definition.
+// The number of newlines before a multi-line function definition. Where
+// applicable, this option is overridden with eat_blanks_after_open_brace=true
 extern BoundedOption<unsigned, 0, 16>
 nl_before_func_body_def;
 
@@ -3252,7 +3263,7 @@ cmt_width;
 //
 // 0: No reflowing (apart from the line wrapping due to cmt_width) (default)
 // 1: No touching at all
-// 2: Full reflow
+// 2: Full reflow (enable cmt_indent_multi for indent with line wrapping due to cmt_width)
 extern BoundedOption<unsigned, 0, 2>
 cmt_reflow_mode;
 
