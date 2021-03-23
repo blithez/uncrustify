@@ -16,6 +16,8 @@
 #include "log_rules.h"
 #include "uncrustify.h"
 
+constexpr static auto LCURRENT = LALBR;
+
 using namespace uncrustify;
 
 
@@ -31,7 +33,7 @@ void align_init_brace(chunk_t *start)
    LOG_FMT(LALBR, "%s(%d): start @ orig_line is %zu, orig_col is %zu\n",
            __func__, __LINE__, start->orig_line, start->orig_col);
 
-   chunk_t *pc       = chunk_get_next_ncnl(start);
+   chunk_t *pc       = chunk_get_next_ncnnl(start);
    chunk_t *pcSingle = scan_ib_line(pc, true);
 
    if (  pcSingle == nullptr
@@ -57,7 +59,8 @@ void align_init_brace(chunk_t *start)
       {
          pc = chunk_get_next(pc);
       }
-   } while (pc != nullptr && pc->level > start->level);
+   } while (  pc != nullptr
+           && pc->level > start->level);
 
    // debug dump the current frame
    align_log_al(LALBR, start->orig_line);
@@ -77,7 +80,8 @@ void align_init_brace(chunk_t *start)
    {
       chunk_t *tmp;
 
-      if (idx == 0 && ((tmp = skip_c99_array(pc)) != nullptr))
+      if (  idx == 0
+         && ((tmp = skip_c99_array(pc)) != nullptr))
       {
          pc = tmp;
 

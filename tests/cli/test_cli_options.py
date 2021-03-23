@@ -200,7 +200,7 @@ def check_generated_output(gen_expected_path, gen_result_path,
 
             return False
         else:
-            print("\nProblem (1) with %s" % gen_result_path)
+            print("\nProblem (2) with %s" % gen_result_path)
             print("use(gen): '--diff' to find out why %s %s are different"
                   % (gen_result_path, gen_expected_path))
             return False
@@ -260,7 +260,8 @@ def check_std_output(expected_path, result_path, result_str, result_manip=None,
 
         if program_args.diff:
             print("\n************************************")
-            print("Problem (2) with %s" % result_path)
+            print("Problem (3) with result_path   is %s" % result_path)
+            print("                 expected_path is %s" % expected_path)
             print("************************************")
 
             file_diff = difflib.ndiff(result_str.splitlines(False),
@@ -273,7 +274,7 @@ def check_std_output(expected_path, result_path, result_str, result_manip=None,
             for line in file_diff:
                 pprint.PrettyPrinter(indent=4, width=280).pprint(line)
         else:
-            print("\nProblem (2) with %s" % result_path)
+            print("\nProblem (4) with %s" % result_path)
             print("use: '--diff' to find out why %s %s are different"
                   % (result_path, expected_path))
         return False
@@ -564,6 +565,23 @@ def main(args):
         return_flag = False
 
     #
+    # Test the truncate option
+    #
+    if not check_uncrustify_output(
+            uncr_bin,
+            parsed_args,
+            args_arr=['-c', s_path_join(script_dir, 'config/truncate.cfg'),
+                      '-f', s_path_join(script_dir, 'input/truncate.cpp'),
+                      '-o', NULL_DEVICE,
+                      '-L', '83'],
+            err_expected_path=s_path_join(script_dir, 'output/truncate.txt'),
+            err_result_path=s_path_join(script_dir, 'results/truncate.txt'),
+            err_result_manip=[reg_replace(r'\([0-9]+\)', ' '),
+                              reg_replace(RE_DO_SPACE, '')]
+            ):
+        return_flag = False
+
+    #
     # Test --update-config
     #
     if not check_uncrustify_output(
@@ -652,10 +670,7 @@ def main(args):
                 ):
             return_flag = False
 
-    #
-    # Test -p and -c with '-' input
-    #
-    if os_name != 'nt' and not check_uncrustify_output(
+    if os_name == 'nt' or check_uncrustify_output(
             uncr_bin,
             parsed_args,
             args_arr=['-c', '-',
@@ -664,7 +679,12 @@ def main(args):
             out_expected_path=s_path_join(script_dir, 'output/pc-.txt'),
             out_result_manip=reg_replace(r'\# Uncrustify.+[^\n\r]', ''),
             out_result_path=s_path_join(script_dir, 'results/pc-.txt')
-            ):
+    ):
+        pass
+    #
+    # Test -p and -c with '-' input
+    #
+    else:
         return_flag = False
 
     #
@@ -752,8 +772,6 @@ def main(args):
     #   -L
     # look at src/log_levels.h
     Ls_A = ['9', '21', '25', '28', '31', '36', '66', '92']
-    #Ls_A = ['9', '21', '25', '28', '31', '36', '92']
-    #Ls_A = ['66']
     for L in Ls_A:
         if not check_uncrustify_output(
                 uncr_bin,
@@ -763,6 +781,7 @@ def main(args):
                 err_expected_path=s_path_join(script_dir, 'output/%s.txt' % L),
                 err_result_path=s_path_join(script_dir, 'results/%s.txt' % L),
                 err_result_manip=[reg_replace(r'\([0-9]+\)', ' '),
+                                  reg_replace(r'\:[0-9]+\)', ' '),
                                   reg_replace(r'\[line [0-9]+', '[ '),
                                   reg_replace(r'   \[[_|,|1|A-Z]*\]', '   []'),
                                   reg_replace(r', \[[_|,|1|A-Z]*\]', ', []'),

@@ -259,6 +259,7 @@ set(uncrustify_sources
   src/backup.cpp
   src/brace_cleanup.cpp
   src/braces.cpp
+  src/calculate_closing_brace_position.cpp
   src/chunk_list.cpp
   src/ChunkStack.cpp
   src/combine.cpp
@@ -290,6 +291,7 @@ set(uncrustify_sources
   src/options_for_QT.cpp
   src/output.cpp
   src/parens.cpp
+  src/parent_for_pp.cpp
   src/ParseFrame.cpp
   src/pcf_flags.cpp
   src/punctuators.cpp
@@ -313,6 +315,7 @@ set(uncrustify_sources
 )
 
 set(uncrustify_headers
+  src/add_space_table.h
   src/align_add.h
   src/align_asm_colon.h
   src/align_assign.h
@@ -341,6 +344,7 @@ set(uncrustify_headers
   src/base_types.h
   src/brace_cleanup.h
   src/braces.h
+  src/calculate_closing_brace_position.h
   src/char_table.h
   src/chunk_list.h
   src/ChunkStack.h
@@ -375,6 +379,7 @@ set(uncrustify_headers
   src/options.h
   src/output.h
   src/parens.h
+  src/parent_for_pp.h
   src/ParseFrame.h
   src/pcf_flags.h
   src/prototypes.h
@@ -497,7 +502,7 @@ include(CPack)
 #
 # Install
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(MSVC)
   install(TARGETS uncrustify DESTINATION ".")
   install(FILES ${uncrustify_docs}
     DESTINATION "."

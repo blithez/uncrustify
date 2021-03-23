@@ -11,6 +11,8 @@
 #include "log_rules.h"
 #include "uncrustify_types.h"
 
+constexpr static auto LCURRENT = LOCMSG;
+
 using namespace uncrustify;
 
 
@@ -33,14 +35,15 @@ void align_oc_msg_colon(chunk_t *so)
    cas.Start(span);
 
    size_t  level = so->level;
-   chunk_t *pc   = chunk_get_next_ncnl(so, scope_e::PREPROC);
+   chunk_t *pc   = chunk_get_next_ncnnl(so, scope_e::PREPROC);
 
    bool    did_line   = false;
    bool    has_colon  = false;
    size_t  lcnt       = 0; // line count with no colon for span
    bool    first_line = true;
 
-   while (pc != nullptr && pc->level > level)
+   while (  pc != nullptr
+         && pc->level > level)
    {
       if (pc->level > (level + 1))
       {
@@ -56,7 +59,9 @@ void align_oc_msg_colon(chunk_t *so)
 
          log_rule_B("align_oc_msg_colon_xcode_like");
 
-         if (options::align_oc_msg_colon_xcode_like() && first_line && !has_colon)
+         if (  options::align_oc_msg_colon_xcode_like()
+            && first_line
+            && !has_colon)
          {
             span = 0;
          }
@@ -72,7 +77,8 @@ void align_oc_msg_colon(chunk_t *so)
          chunk_t *tmp = chunk_get_prev(pc);
 
          if (  tmp != nullptr
-            && (chunk_is_token(tmp, CT_OC_MSG_FUNC) || chunk_is_token(tmp, CT_OC_MSG_NAME)))
+            && (  chunk_is_token(tmp, CT_OC_MSG_FUNC)
+               || chunk_is_token(tmp, CT_OC_MSG_NAME)))
          {
             nas.Add(tmp);
             chunk_flags_set(tmp, PCF_DONT_INDENT);
@@ -131,11 +137,13 @@ void align_oc_msg_colon(chunk_t *so)
    if (  longest != nullptr
       && options::indent_oc_msg_prioritize_first_colon()
       && len_diff > 0
-      && ((longest->column >= len_diff) && (longest->column - len_diff) > (longest->brace_level * indent_size)))
+      && (  (longest->column >= len_diff)
+         && (longest->column - len_diff) > (longest->brace_level * indent_size)))
    {
       longest->column -= len_diff;
    }
-   else if (longest && len > 0)
+   else if (  longest != nullptr
+           && len > 0)
    {
       chunk_t chunk;
 
@@ -166,7 +174,8 @@ void align_oc_msg_colons(void)
 
    for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
    {
-      if (chunk_is_token(pc, CT_SQUARE_OPEN) && get_chunk_parent_type(pc) == CT_OC_MSG)
+      if (  chunk_is_token(pc, CT_SQUARE_OPEN)
+         && get_chunk_parent_type(pc) == CT_OC_MSG)
       {
          align_oc_msg_colon(pc);
       }

@@ -17,6 +17,8 @@
 #include "log_rules.h"
 #include "uncrustify.h"
 
+constexpr static auto LCURRENT = LALIGN;
+
 using namespace uncrustify;
 
 
@@ -35,11 +37,11 @@ void align_eigen_comma_init(void)
    {
       if (chunk_is_newline(pc))
       {
-         LOG_FMT(LAVDB, "%s(%d): orig_line is %zu, <Newline>\n", __func__, __LINE__, pc->orig_line);
+         LOG_FMT(LALIGN, "%s(%d): orig_line is %zu, <Newline>\n", __func__, __LINE__, pc->orig_line);
       }
       else
       {
-         LOG_FMT(LAVDB, "%s(%d): orig_line is %zu, orig_col is %zu, pc->text() '%s'\n",
+         LOG_FMT(LALIGN, "%s(%d): orig_line is %zu, orig_col is %zu, pc->text() '%s'\n",
                  __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
       }
 
@@ -54,13 +56,15 @@ void align_eigen_comma_init(void)
       {
          as.NewLines(pc->nl_count);
       }
-      else if (start != nullptr && pc->level < start->level)
+      else if (  start != nullptr
+              && pc->level < start->level)
       {
          // A drop in level restarts the aligning
          as.Flush();
          start = nullptr;
       }
-      else if (start != nullptr && pc->level > start->level)
+      else if (  start != nullptr
+              && pc->level > start->level)
       {
          // Ignore any deeper levels when aligning
       }
@@ -89,7 +93,8 @@ void align_eigen_comma_init(void)
              */
             chunk_t *prev = chunk_get_prev(pc);
 
-            if (prev != nullptr && chunk_is_newline(prev))
+            if (  prev != nullptr
+               && chunk_is_newline(prev))
             {
                log_rule_B("indent_columns");
                indent_to_column(pc, pc->column_indent + options::indent_columns());
@@ -107,7 +112,7 @@ void align_eigen_comma_init(void)
          auto *const prev = chunk_get_prev(pc);
 
          if (  chunk_is_newline(prev)
-            && chunk_is_token(chunk_get_prev_ncnl(pc), CT_COMMA))
+            && chunk_is_token(chunk_get_prev_ncnnl(pc), CT_COMMA))
          {
             log_rule_B("align_eigen_comma_init");
             as.Add(pc);

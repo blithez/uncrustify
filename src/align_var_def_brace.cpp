@@ -14,6 +14,8 @@
 #include "log_rules.h"
 #include "uncrustify.h"
 
+constexpr static auto LCURRENT = LAVDB;
+
 using namespace uncrustify;
 
 
@@ -31,7 +33,8 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
    size_t  mygap    = 0;
 
    // Override the span, if this is a struct/union
-   if (get_chunk_parent_type(start) == CT_STRUCT || get_chunk_parent_type(start) == CT_UNION)
+   if (  get_chunk_parent_type(start) == CT_STRUCT
+      || get_chunk_parent_type(start) == CT_UNION)
    {
       log_rule_B("align_var_struct_span");
       myspan = options::align_var_struct_span();
@@ -57,7 +60,7 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
       mygap = options::align_var_def_gap();
    }
    // can't be any variable definitions in a "= {" block
-   chunk_t *prev = chunk_get_prev_ncnl(start);
+   chunk_t *prev = chunk_get_prev_ncnnl(start);
 
    if (chunk_is_token(prev, CT_ASSIGN))
    {
@@ -65,10 +68,12 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
               __func__, __LINE__, start->text(), get_token_name(start->type), start->orig_line);
 
       chunk_t *pc = chunk_get_next_type(start, CT_BRACE_CLOSE, start->level);
-      return(chunk_get_next_ncnl(pc));
+      return(chunk_get_next_ncnnl(pc));
    }
+   char copy[1000];
+
    LOG_FMT(LAVDB, "%s(%d): start->text() '%s', type is %s, on orig_line %zu\n",
-           __func__, __LINE__, start->text(), get_token_name(start->type), start->orig_line);
+           __func__, __LINE__, start->elided_text(copy), get_token_name(start->type), start->orig_line);
 
    log_rule_B("align_var_def_inline");
    auto const align_mask =
@@ -111,7 +116,8 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
    chunk_t *pc       = chunk_get_next(start);
 
    while (  pc != nullptr
-         && (pc->level >= start->level || pc->level == 0))
+         && (  pc->level >= start->level
+            || pc->level == 0))
    {
       if (chunk_is_newline(pc))
       {
@@ -137,7 +143,8 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
          continue;
       }
 
-      if (fp_active && !pc->flags.test(PCF_IN_CLASS_BASE))
+      if (  fp_active
+         && !pc->flags.test(PCF_IN_CLASS_BASE))
       {
          // WARNING: Duplicate from the align_func_proto()
          log_rule_B("align_single_line_func");
@@ -156,7 +163,7 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
             if (  get_chunk_parent_type(pc) == CT_OPERATOR
                && options::align_on_operator())
             {
-               toadd = chunk_get_prev_ncnl(pc);
+               toadd = chunk_get_prev_ncnnl(pc);
             }
             else
             {
@@ -249,7 +256,8 @@ chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
          && chunk_is_not_token(pc, CT_FUNC_CLASS_PROTO)
          && ((pc->flags & align_mask) == PCF_VAR_1ST)
          && chunk_is_not_token(pc, CT_FUNC_DEF)                                   // Issue 1452
-         && ((pc->level == (start->level + 1)) || pc->level == 0)
+         && (  (pc->level == (start->level + 1))
+            || pc->level == 0)
          && pc->prev != nullptr
          && pc->prev->type != CT_MEMBER)
       {

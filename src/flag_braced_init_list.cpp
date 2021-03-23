@@ -47,7 +47,7 @@ bool detect_cpp_braced_init_list(chunk_t *pc, chunk_t *next)
             || get_chunk_parent_type(pc) == CT_BRACED_INIT_LIST)))
    {
       log_pcf_flags(LFCNR, pc->flags);
-      auto brace_open = chunk_get_next_ncnl(pc);
+      auto brace_open = chunk_get_next_ncnnl(pc);
 
       if (  chunk_is_token(brace_open, CT_BRACE_OPEN)
          && (  get_chunk_parent_type(brace_open) == CT_NONE
@@ -70,13 +70,13 @@ bool detect_cpp_braced_init_list(chunk_t *pc, chunk_t *next)
 
 void flag_cpp_braced_init_list(chunk_t *pc, chunk_t *next)
 {
-   auto brace_open  = chunk_get_next_ncnl(pc);
+   auto brace_open  = chunk_get_next_ncnnl(pc);
    auto brace_close = chunk_skip_to_match(next);
 
    set_chunk_parent(brace_open, CT_BRACED_INIT_LIST);
    set_chunk_parent(brace_close, CT_BRACED_INIT_LIST);
 
-   auto *tmp = chunk_get_next_ncnl(brace_close);
+   auto *tmp = chunk_get_next_ncnnl(brace_close);
 
    if (tmp != nullptr)
    {
@@ -98,7 +98,8 @@ void flag_cpp_braced_init_list(chunk_t *pc, chunk_t *next)
    // for the case CT_ASSIGN (and others).
 
    // TODO: Move this block to the fix_fcn_call_args function.
-   if (chunk_is_token(pc, CT_WORD) && pc->flags.test(PCF_IN_FCN_CALL))
+   if (  chunk_is_token(pc, CT_WORD)
+      && pc->flags.test(PCF_IN_FCN_CALL))
    {
       set_chunk_type(pc, CT_TYPE);
    }

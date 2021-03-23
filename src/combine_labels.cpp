@@ -105,16 +105,19 @@ void combine_labels(void)
          hit_class = true;
       }
 
-      if (chunk_is_semicolon(next) || chunk_is_token(next, CT_BRACE_OPEN))
+      if (  chunk_is_semicolon(next)
+         || chunk_is_token(next, CT_BRACE_OPEN))
       {
          hit_class = false;
       }
 
-      if (chunk_is_token(prev, CT_SQUARE_OPEN) && get_chunk_parent_type(prev) == CT_OC_MSG)
+      if (  chunk_is_token(prev, CT_SQUARE_OPEN)
+         && get_chunk_parent_type(prev) == CT_OC_MSG)
       {
          cs.Push_Back(prev);
       }
-      else if (chunk_is_token(next, CT_SQUARE_CLOSE) && get_chunk_parent_type(next) == CT_OC_MSG)
+      else if (  chunk_is_token(next, CT_SQUARE_CLOSE)
+              && get_chunk_parent_type(next) == CT_OC_MSG)
       {
          // pop until we hit '['
          while (!cs.Empty())
@@ -129,7 +132,8 @@ void combine_labels(void)
          }
       }
 
-      if (chunk_is_token(next, CT_QUESTION) && !next->flags.test(PCF_IN_TEMPLATE))
+      if (  chunk_is_token(next, CT_QUESTION)
+         && !next->flags.test(PCF_IN_TEMPLATE))
       {
          cs.Push_Back(next);
       }
@@ -164,7 +168,7 @@ void combine_labels(void)
          {
             hit_case = false;
             set_chunk_type(next, CT_CASE_COLON);
-            chunk_t *tmp = chunk_get_next_ncnlnp(next);                // Issue #2150
+            chunk_t *tmp = chunk_get_next_ncnnlnp(next);                // Issue #2150
 
             if (chunk_is_token(tmp, CT_BRACE_OPEN))
             {
@@ -177,9 +181,10 @@ void combine_labels(void)
                }
             }
 
-            if (chunk_is_token(cur, CT_NUMBER) && chunk_is_token(prev, CT_ELLIPSIS))
+            if (  chunk_is_token(cur, CT_NUMBER)
+               && chunk_is_token(prev, CT_ELLIPSIS))
             {
-               chunk_t *pre_elipsis = chunk_get_prev_ncnlnp(prev);
+               chunk_t *pre_elipsis = chunk_get_prev_ncnnlnp(prev);
 
                if (chunk_is_token(pre_elipsis, CT_NUMBER))
                {
@@ -208,7 +213,8 @@ void combine_labels(void)
 
             if (language_is_set(LANG_PAWN))
             {
-               if (chunk_is_token(cur, CT_WORD) || chunk_is_token(cur, CT_BRACE_CLOSE))
+               if (  chunk_is_token(cur, CT_WORD)
+                  || chunk_is_token(cur, CT_BRACE_CLOSE))
                {
                   c_token_t new_type = CT_TAG;
 
@@ -219,7 +225,8 @@ void combine_labels(void)
                      return;
                   }
 
-                  if (chunk_is_newline(prev) && chunk_is_newline(tmp))
+                  if (  chunk_is_newline(prev)
+                     && chunk_is_newline(tmp))
                   {
                      new_type = CT_LABEL;
                      set_chunk_type(next, CT_LABEL_COLON);
@@ -288,7 +295,7 @@ void combine_labels(void)
 
                      if (chunk_is_token(labelPrev, CT_NEWLINE))
                      {
-                        labelPrev = chunk_get_prev_ncnlni(prev);   // Issue #2279
+                        labelPrev = chunk_get_prev_ncnnlni(prev);   // Issue #2279
                      }
 
                      if (  labelPrev != nullptr
@@ -370,7 +377,8 @@ void combine_labels(void)
             {
                // ignore it - bit field, align or public/private, etc
             }
-            else if (chunk_is_token(cur, CT_ANGLE_CLOSE) || hit_class)
+            else if (  chunk_is_token(cur, CT_ANGLE_CLOSE)
+                    || hit_class)
             {
                // ignore it - template thingy
             }
@@ -388,7 +396,7 @@ void combine_labels(void)
             }
             else
             {
-               chunk_t *tmp = chunk_get_next_ncnl(next);
+               chunk_t *tmp = chunk_get_next_ncnnl(next);
 
                //tmp = chunk_get_next_local(next);
                if (tmp != nullptr)
@@ -398,7 +406,8 @@ void combine_labels(void)
                           __func__, __LINE__, tmp->text(), tmp->orig_line, tmp->orig_col,
                           get_token_name(tmp->type));
 
-                  if (chunk_is_token(tmp, CT_BASE) || chunk_is_token(tmp, CT_THIS))
+                  if (  chunk_is_token(tmp, CT_BASE)
+                     || chunk_is_token(tmp, CT_THIS))
                   {
                      // ignore it, as it is a C# base thingy
                   }

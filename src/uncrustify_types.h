@@ -163,7 +163,7 @@ struct chunk_t
       nl_column     = 0;
       level         = 0;
       brace_level   = 0;
-      pp_level      = 0;
+      pp_level      = 999;                           // use a big value to find some errors
       after_tab     = false;
       // for debugging purpose only
       tracking = nullptr;
@@ -182,6 +182,41 @@ struct chunk_t
    const char *text() const
    {
       return(str.c_str());
+   }
+
+
+   // Issue #2984, fill up, if necessary, a copie of the first chars of the text() string
+   const char *elided_text(char *for_the_copy)
+   {
+      const char *test_it       = text();
+      size_t     test_it_length = strlen(test_it);
+
+      size_t     truncate_value = uncrustify::options::debug_truncate();
+
+      if (truncate_value != 0)
+      {
+         if (test_it_length > truncate_value)
+         {
+            memset(for_the_copy, 0, 1000);
+
+            if (test_it_length < truncate_value + 30)
+            {
+               strncpy(for_the_copy, test_it, truncate_value - 30);
+            }
+            else
+            {
+               strncpy(for_the_copy, test_it, truncate_value);
+            }
+            char *message = strcat(for_the_copy, " ... <The string is truncated>");
+
+            return(message);
+         }
+         else
+         {
+            return(test_it);
+         }
+      }
+      return(test_it);
    }
 
    chunk_t      *next;            //! pointer to next chunk in list
@@ -318,6 +353,7 @@ struct cp_data_t
    file_mem          func_hdr;          // for cmt_insert_func_header
    file_mem          oc_msg_hdr;        // for cmt_insert_oc_msg_header
    file_mem          class_hdr;         // for cmt_insert_class_header
+   file_mem          reflow_fold_regex; // for cmt_reflow_fold_regex_file
 
    size_t            lang_flags;        //! defines the language of the source input
    bool              lang_forced;       //! overwrites automatic language detection

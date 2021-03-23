@@ -76,24 +76,29 @@ string_replace_tab_chars;
 extern Option<bool>
 tok_split_gte;
 
-// Disable formatting of NL_CONT ('\\n') ended lines (e.g. multiline macros)
+// Disable formatting of NL_CONT ('\\n') ended lines (e.g. multi-line macros).
 extern Option<bool>
 disable_processing_nl_cont;
 
 // Specify the marker used in comments to disable processing of part of the
 // file.
-// The comment should be used alone in one line.
 extern Option<string>
 disable_processing_cmt; // = UNCRUSTIFY_OFF_TEXT
 
 // Specify the marker used in comments to (re)enable processing in a file.
-// The comment should be used alone in one line.
 extern Option<string>
 enable_processing_cmt; // = UNCRUSTIFY_ON_TEXT
 
 // Enable parsing of digraphs.
 extern Option<bool>
 enable_digraphs;
+
+// Option to allow both disable_processing_cmt and enable_processing_cmt
+// strings, if specified, to be interpreted as ECMAScript regular expressions.
+// If true, a regex search will be performed within comments according to the
+// specified patterns in order to disable/enable processing.
+extern Option<bool>
+processing_cmt_as_regex;
 
 // Add or remove the UTF-8 BOM (recommend 'remove').
 extern Option<iarf_e>
@@ -107,18 +112,6 @@ utf8_byte;
 // Force the output encoding to UTF-8.
 extern Option<bool>
 utf8_force;
-
-// Add or remove space between 'do' and '{'.
-extern Option<iarf_e>
-sp_do_brace_open;
-
-// Add or remove space between '}' and 'while'.
-extern Option<iarf_e>
-sp_brace_close_while;
-
-// Add or remove space between 'while' and '('.
-extern Option<iarf_e>
-sp_while_paren_open;
 
 //END
 
@@ -155,6 +148,12 @@ sp_cpp_lambda_square_paren;
 // no argument list is present, as in '[] <here> { ... }'.
 extern Option<iarf_e>
 sp_cpp_lambda_square_brace;
+
+// Add or remove space after the opening parenthesis and before the closing
+// parenthesis of a argument list of a C++11 lambda, as in
+// '[]( <here> int x <here> ){ ... }'.
+extern Option<iarf_e>
+sp_cpp_lambda_argument_list;
 
 // Add or remove space after the argument list of a C++11 lambda, as in
 // '[](int x) <here> { ... }'.
@@ -423,6 +422,18 @@ sp_after_sparen;
 // Add or remove space between ')' and '{' of of control statements.
 extern Option<iarf_e>
 sp_sparen_brace;
+
+// Add or remove space between 'do' and '{'.
+extern Option<iarf_e>
+sp_do_brace_open;
+
+// Add or remove space between '}' and 'while'.
+extern Option<iarf_e>
+sp_brace_close_while;
+
+// Add or remove space between 'while' and '('. Overrides sp_before_sparen.
+extern Option<iarf_e>
+sp_while_paren_open;
 
 // (D) Add or remove space between 'invariant' and '('.
 extern Option<iarf_e>
@@ -1427,12 +1438,19 @@ extern Option<bool>
 indent_relative_single_line_comments;
 
 // Spaces to indent 'case' from 'switch'. Usually 0 or indent_columns.
+// It might wise to choose the same value for the option indent_case_brace.
 extern BoundedOption<unsigned, 0, 16>
 indent_switch_case;
 
+// Spaces to indent '{' from 'case'. By default, the brace will appear under
+// the 'c' in case. Usually set to 0 or indent_columns. Negative values are OK.
+// It might wise to choose the same value for the option indent_switch_case.
+extern BoundedOption<signed, -16, 16>
+indent_case_brace;
+
 // indent 'break' with 'case' from 'switch'.
 extern Option<bool>
-indent_switch_break_with_case; // = false
+indent_switch_break_with_case;
 
 // Whether to indent preprocessor statements inside of switch statements.
 extern Option<bool>
@@ -1442,11 +1460,6 @@ indent_switch_pp; // = true
 // Usually 0.
 extern BoundedOption<unsigned, 0, 16>
 indent_case_shift;
-
-// Spaces to indent '{' from 'case'. By default, the brace will appear under
-// the 'c' in case. Usually set to 0 or indent_columns. Negative values are OK.
-extern BoundedOption<signed, -16, 16>
-indent_case_brace;
 
 // Whether to indent comments found in first column.
 extern Option<bool>
@@ -1546,7 +1559,7 @@ indent_align_assign; // = true
 // If true, the indentation of the chunks after a '=' sequence will be set at
 // LHS token indentation column before '='.
 extern Option<bool>
-indent_off_after_assign; // = false
+indent_off_after_assign;
 
 // Whether to align continued statements at the '('. If false or the '(' is
 // followed by a newline, the next line indent is one tab.
@@ -1555,7 +1568,7 @@ indent_align_paren; // = true
 
 // (OC) Whether to indent Objective-C code inside message selectors.
 extern Option<bool>
-indent_oc_inside_msg_sel; // = false
+indent_oc_inside_msg_sel;
 
 // (OC) Whether to indent Objective-C blocks at brace level instead of usual
 // rules.
@@ -1626,10 +1639,10 @@ extern Option<bool>
 indent_cpp_lambda_body;
 
 // How to indent compound literals that are being returned.
-// true: add both the indent from return & the compound literal open brace (ie:
-//       2 indent levels)
-// false: only indent 1 level, don't add the indent for the open brace, only add
-//        the indent for the return.
+// true: add both the indent from return & the compound literal open brace
+//       (i.e. 2 indent levels)
+// false: only indent 1 level, don't add the indent for the open brace, only
+//        add the indent for the return.
 extern Option<bool>
 indent_compound_literal_return; // = true
 
@@ -1645,9 +1658,9 @@ indent_using_block; // = true
 extern BoundedOption<unsigned, 0, 2>
 indent_ternary_operator;
 
-// Whether to indent the statments inside ternary operator.
+// Whether to indent the statements inside ternary operator.
 extern Option<bool>
-indent_inside_ternary_operator; // false
+indent_inside_ternary_operator;
 
 // If true, the indentation of the chunks after a `return` sequence will be set at return indentation column.
 extern Option<bool>
@@ -1717,6 +1730,10 @@ nl_if_leave_one_liners;
 // Don't split one-line while statements, as in 'while(...) b++;'.
 extern Option<bool>
 nl_while_leave_one_liners;
+
+// Don't split one-line do statements, as in 'do { b++; } while(...);'.
+extern Option<bool>
+nl_do_leave_one_liners;
 
 // Don't split one-line for statements, as in 'for(...) b++;'.
 extern Option<bool>
@@ -2249,7 +2266,7 @@ nl_func_call_args_multi_line;
 extern Option<bool>
 nl_func_call_end_multi_line;
 
-// Whether to respect nl_func_call_XXX option incase of closure args.
+// Whether to respect nl_func_call_XXX option in case of closure args.
 extern Option<bool>
 nl_func_call_args_multi_line_ignore_closures; // false
 
@@ -2479,9 +2496,8 @@ nl_create_while_one_liner;
 extern Option<bool>
 nl_create_func_def_one_liner;
 
-// Whether to collapse a function definition whose body (not counting braces)
-// is only one line so that the entire definition (prototype, braces, body) is
-// a single line.
+// Whether to split one-line simple unbraced if statements into three lines by
+// adding newlines, as in 'int a[12] = { <here> 0 <here> };'.
 extern Option<bool>
 nl_create_list_one_liner;
 
@@ -3267,6 +3283,43 @@ cmt_width;
 extern BoundedOption<unsigned, 0, 2>
 cmt_reflow_mode;
 
+// Path to a file that contains regular expressions describing patterns for
+// which the end of one line and the beginning of the next will be folded into
+// the same sentence or paragraph during full comment reflow. The regular
+// expressions are described using ECMAScript syntax. The syntax for this
+// specification is as follows, where "..." indicates the custom regular
+// expression and "n" indicates the nth end_of_prev_line_regex and
+// beg_of_next_line_regex regular expression pair:
+//
+// end_of_prev_line_regex[1] = "...$"
+// beg_of_next_line_regex[1] = "^..."
+// end_of_prev_line_regex[2] = "...$"
+// beg_of_next_line_regex[2] = "^..."
+//             .
+//             .
+//             .
+// end_of_prev_line_regex[n] = "...$"
+// beg_of_next_line_regex[n] = "^..."
+//
+// Note that use of this option overrides the default reflow fold regular
+// expressions, which are internally defined as follows:
+//
+// end_of_prev_line_regex[1] = "[\w,\]\)]$"
+// beg_of_next_line_regex[1] = "^[\w,\[\(]"
+// end_of_prev_line_regex[2] = "\.$"
+// beg_of_next_line_regex[2] = "^[A-Z]"
+extern Option<string>
+cmt_reflow_fold_regex_file;
+
+// Whether to indent wrapped lines to the start of the encompassing paragraph
+// during full comment reflow (cmt_reflow_mode = 2). Overrides the value
+// specified by cmt_sp_after_star_cont.
+//
+// Note that cmt_align_doxygen_javadoc_tags overrides this option for
+// paragraphs associated with javadoc tags
+extern Option<bool>
+cmt_reflow_indent_to_paragraph_start;
+
 // Whether to convert all tabs to spaces in comments. If false, tabs in
 // comments are left alone, unless used for indenting.
 extern Option<bool>
@@ -3278,6 +3331,22 @@ cmt_convert_tab_to_spaces;
 // keyword substitution and leading chars.
 extern Option<bool>
 cmt_indent_multi; // = true
+
+// Whether to align doxygen javadoc-style tags ('@param', '@return', etc.)
+// and corresponding fields such that groups of consecutive block tags,
+// parameter names, and descriptions align with one another. Overrides that
+// which is specified by the cmt_sp_after_star_cont. If cmt_width > 0, it may
+// be necessary to enable cmt_indent_multi and set cmt_reflow_mode = 2
+// in order to achieve the desired alignment for line-wrapping.
+extern Option<bool>
+cmt_align_doxygen_javadoc_tags;
+
+// The number of spaces to insert after the star and before doxygen
+// javadoc-style tags (@param, @return, etc). Requires enabling
+// cmt_align_doxygen_javadoc_tags. Overrides that which is specified by the
+// cmt_sp_after_star_cont.
+extern BoundedOption<unsigned, 0, 16>
+cmt_sp_before_doxygen_javadoc_tags; // = 1
 
 // Whether to group c-comments that look like they are in a block.
 extern Option<bool>
@@ -3770,9 +3839,8 @@ use_sp_after_angle_always;
 extern Option<bool>
 use_options_overriding_for_qt_macros; // = true
 
-// If true: the form feed character is removed from the list
-// of whitespace characters.
-// See https://en.cppreference.com/w/cpp/string/byte/isspace
+// If true: the form feed character is removed from the list of whitespace
+// characters. See https://en.cppreference.com/w/cpp/string/byte/isspace.
 extern Option<bool>
 use_form_feed_no_more_as_whitespace_character;
 
@@ -3805,6 +3873,11 @@ debug_line_number_to_protocol;
 // only for linux
 extern Option<signed>
 debug_timeout;
+
+// Set the number of characters to be printed if the text is too long,
+// 0: do not truncate.
+extern BoundedOption<unsigned, 0, 960>
+debug_truncate;
 
 //END
 

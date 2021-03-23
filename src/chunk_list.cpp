@@ -256,7 +256,8 @@ bool are_chunks_in_same_line(chunk_t *start, chunk_t *end)
       return(false);
    }
 
-   while (tmp != nullptr && tmp != end)
+   while (  tmp != nullptr
+         && tmp != end)
    {
       if (chunk_is_token(tmp, CT_NEWLINE))
       {
@@ -346,7 +347,8 @@ static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct, const scope_
 
 static chunk_t *chunk_ppa_search(chunk_t *cur, const check_t check_fct, const bool cond)
 {
-   if (cur && !cur->flags.test(PCF_IN_PREPROC))
+   if (  cur != nullptr
+      && !cur->flags.test(PCF_IN_PREPROC))
    {
       // if not in preprocessor, do a regular search
       return(chunk_search(cur, check_fct, scope_e::ALL,
@@ -354,7 +356,8 @@ static chunk_t *chunk_ppa_search(chunk_t *cur, const check_t check_fct, const bo
    }
    chunk_t *pc = cur;
 
-   while (pc != nullptr && (pc = pc->next) != nullptr)
+   while (  pc != nullptr
+         && (pc = pc->next) != nullptr)
    {
       if (!pc->flags.test(PCF_IN_PREPROC))
       {
@@ -394,7 +397,8 @@ chunk_t *chunk_get_next(chunk_t *cur, scope_e scope)
    }
    chunk_t *pc = g_cl.GetNext(cur);
 
-   if (pc == nullptr || scope == scope_e::ALL)
+   if (  pc == nullptr
+      || scope == scope_e::ALL)
    {
       return(pc);
    }
@@ -410,7 +414,8 @@ chunk_t *chunk_get_next(chunk_t *cur, scope_e scope)
    }
 
    // Not in a preproc, skip any preproc
-   while (pc != nullptr && pc->flags.test(PCF_IN_PREPROC))
+   while (  pc != nullptr
+         && pc->flags.test(PCF_IN_PREPROC))
    {
       pc = g_cl.GetNext(pc);
    }
@@ -426,7 +431,8 @@ chunk_t *chunk_get_prev(chunk_t *cur, scope_e scope)
    }
    chunk_t *pc = g_cl.GetPrev(cur);
 
-   if (pc == nullptr || scope == scope_e::ALL)
+   if (  pc == nullptr
+      || scope == scope_e::ALL)
    {
       return(pc);
    }
@@ -442,7 +448,8 @@ chunk_t *chunk_get_prev(chunk_t *cur, scope_e scope)
    }
 
    // Not in a preproc, skip any preproc
-   while (pc != nullptr && pc->flags.test(PCF_IN_PREPROC))
+   while (  pc != nullptr
+         && pc->flags.test(PCF_IN_PREPROC))
    {
       pc = g_cl.GetPrev(pc);
    }
@@ -506,7 +513,8 @@ static void chunk_log(chunk_t *pc, const char *text)
 
       chunk_log_msg(pc, log, text);
 
-      if (prev != nullptr && next != nullptr)
+      if (  prev != nullptr
+         && next != nullptr)
       {
          chunk_log_msg(prev, log, " @ between");
          chunk_log_msg(next, log, " and");
@@ -538,10 +546,11 @@ chunk_t *chunk_add_before(const chunk_t *pc_in, chunk_t *ref)
 }
 
 
-void chunk_del_2(chunk_t *pc)
+void chunk_del(chunk_t * &pc)
 {
    g_cl.Pop(pc);
    delete pc;
+   pc = nullptr;
 }
 
 
@@ -582,25 +591,25 @@ chunk_t *chunk_get_prev_nnl(chunk_t *cur, scope_e scope)
 }
 
 
-chunk_t *chunk_get_next_ncnl(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_next_ncnnl(chunk_t *cur, scope_e scope)
 {
    return(chunk_search(cur, chunk_is_comment_or_newline, scope, direction_e::FORWARD, false));
 }
 
 
-chunk_t *chunk_get_next_ncnlnp(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_next_ncnnlnp(chunk_t *cur, scope_e scope)
 {
    return(chunk_get_ncnlnp(cur, scope, direction_e::FORWARD));
 }
 
 
-chunk_t *chunk_ppa_get_next_ncnl(chunk_t *cur)
+chunk_t *chunk_ppa_get_next_ncnnl(chunk_t *cur)
 {
    return(chunk_ppa_search(cur, chunk_is_comment_or_newline, false));
 }
 
 
-chunk_t *chunk_get_prev_ncnlnp(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_prev_ncnnlnp(chunk_t *cur, scope_e scope)
 {
    return(chunk_get_ncnlnp(cur, scope, direction_e::BACKWARD));
 }
@@ -630,13 +639,13 @@ chunk_t *chunk_get_next_nisq(chunk_t *cur, scope_e scope)
 }
 
 
-chunk_t *chunk_get_prev_ncnl(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_prev_ncnnl(chunk_t *cur, scope_e scope)
 {
    return(chunk_search(cur, chunk_is_comment_or_newline, scope, direction_e::BACKWARD, false));
 }
 
 
-chunk_t *chunk_get_prev_ncnlni(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_prev_ncnnlni(chunk_t *cur, scope_e scope)
 {
    return(chunk_search(cur, chunk_is_comment_or_newline_or_ignored, scope, direction_e::BACKWARD, false));
 }
@@ -697,7 +706,8 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
 {
    chunk_t *first = pc;
 
-   while ((pc = chunk_get_prev(pc)) != nullptr && !chunk_is_newline(pc))
+   while (  (pc = chunk_get_prev(pc)) != nullptr
+         && !chunk_is_newline(pc))
    {
       first = pc;
    }
@@ -746,7 +756,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    // Move the line started at pc2 before pc1
-   while (pc2 != nullptr && !chunk_is_newline(pc2))
+   while (  pc2 != nullptr
+         && !chunk_is_newline(pc2))
    {
       chunk_t *tmp = chunk_get_next(pc2);
       g_cl.Pop(pc2);
@@ -760,7 +771,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     */
 
    // Now move the line started at pc1 after ref2
-   while (pc1 != nullptr && !chunk_is_newline(pc1))
+   while (  pc1 != nullptr
+         && !chunk_is_newline(pc1))
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
@@ -786,7 +798,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     * pc1 and pc2 should be the newlines for their lines.
     * swap the chunks and the nl_count so that the spacing remains the same.
     */
-   if (pc1 != nullptr && pc2 != nullptr)
+   if (  pc1 != nullptr
+      && pc2 != nullptr)
    {
       size_t nl_count = pc1->nl_count;
 
@@ -882,7 +895,8 @@ void set_chunk_parent_real(chunk_t *pc, c_token_t token, const char *func, int l
    }
    else
    {
-      LOG_FMT(LSETPAR, "'%s'\n", pc->text());
+      char copy[1000];
+      LOG_FMT(LSETPAR, "'%s'\n", pc->elided_text(copy));
    }
    LOG_FMT(LSETPAR, "   pc->type is %s, pc->parent_type is %s => *type is %s, *parent_type is %s\n",
            get_token_name(pc->type), get_token_name(get_chunk_parent_type(pc)),
@@ -907,7 +921,7 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const scope_e scope, const direct
 {
    chunk_t *pc = cur;
 
-   pc = (chunk_is_preproc(pc) == true) ?
+   pc = chunk_is_preproc(pc) ?
         chunk_search(pc, chunk_is_comment_or_newline_in_preproc, scope, dir, false) :
         chunk_search(pc, chunk_is_comment_newline_or_preproc, scope, dir, false);
    return(pc);
@@ -954,13 +968,14 @@ static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const direction_e 
 
 chunk_t *chunk_get_next_ssq(chunk_t *cur)
 {
-   while (chunk_is_token(cur, CT_TSQUARE) || chunk_is_token(cur, CT_SQUARE_OPEN))
+   while (  chunk_is_token(cur, CT_TSQUARE)
+         || chunk_is_token(cur, CT_SQUARE_OPEN))
    {
       if (chunk_is_token(cur, CT_SQUARE_OPEN))
       {
          cur = chunk_skip_to_match(cur);
       }
-      cur = chunk_get_next_ncnl(cur);
+      cur = chunk_get_next_ncnnl(cur);
    }
    return(cur);
 }
@@ -968,13 +983,14 @@ chunk_t *chunk_get_next_ssq(chunk_t *cur)
 
 chunk_t *chunk_get_prev_ssq(chunk_t *cur)
 {
-   while (chunk_is_token(cur, CT_TSQUARE) || chunk_is_token(cur, CT_SQUARE_CLOSE))
+   while (  chunk_is_token(cur, CT_TSQUARE)
+         || chunk_is_token(cur, CT_SQUARE_CLOSE))
    {
       if (chunk_is_token(cur, CT_SQUARE_CLOSE))
       {
          cur = chunk_skip_to_match_rev(cur);
       }
-      cur = chunk_get_prev_ncnl(cur);
+      cur = chunk_get_prev_ncnnl(cur);
    }
    return(cur);
 }
@@ -1005,7 +1021,7 @@ static chunk_t *chunk_skip_dc_member(chunk_t *start, scope_e scope, direction_e 
       return(nullptr);
    }
    const auto step_fcn = (dir == direction_e::FORWARD)
-                         ? chunk_get_next_ncnl : chunk_get_prev_ncnl;
+                         ? chunk_get_next_ncnnl : chunk_get_prev_ncnnl;
 
    chunk_t *pc   = start;
    chunk_t *next = chunk_is_token(pc, CT_DC_MEMBER) ? pc : step_fcn(pc, scope);
@@ -1106,4 +1122,35 @@ bool chunk_is_enum(chunk_t *pc)
 {
    return(  chunk_is_token(pc, CT_ENUM)
          || chunk_is_token(pc, CT_ENUM_CLASS));
+}
+
+
+int chunk_compare_position(const chunk_t *A_token, const chunk_t *B_token)
+{
+   if (A_token == nullptr)
+   {
+      assert(A_token);
+   }
+
+   if (B_token == nullptr)
+   {
+      assert(B_token);
+   }
+
+   if (A_token->orig_line < B_token->orig_line)
+   {
+      return(-1);
+   }
+   else if (A_token->orig_line == B_token->orig_line)
+   {
+      if (A_token->orig_col < B_token->orig_col)
+      {
+         return(-1);
+      }
+      else if (A_token->orig_col == B_token->orig_col)
+      {
+         return(0);
+      }
+   }
+   return(1);
 }

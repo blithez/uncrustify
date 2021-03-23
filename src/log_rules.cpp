@@ -21,9 +21,10 @@ void log_rule2(const char *func, size_t line, const char *rule, chunk_t *first, 
       LOG_FMT(LSPACE, "%s(%zu): first->orig_line is %zu, first->orig_col is %zu, first->text() is '%s', [%s/%s] <===>\n",
               func, line, first->orig_line, first->orig_col, first->text(),
               get_token_name(first->type), get_token_name(get_chunk_parent_type(first)));
-      LOG_FMT(LSPACE, "   second->orig_line is %zu, second->orig_col is %zu, second->text() '%s', [%s/%s] : rule %s[line %zu]\n",
+      LOG_FMT(LSPACE, "           second->orig_line is %zu, second->orig_col is %zu, second->text() is '%s', [%s/%s] :",
               second->orig_line, second->orig_col, second->text(),
-              get_token_name(second->type), get_token_name(get_chunk_parent_type(second)),
+              get_token_name(second->type), get_token_name(get_chunk_parent_type(second)));
+      LOG_FMT(LSPACE, " rule %s[line %zu]\n",
               rule, line);
    }
 }
@@ -32,11 +33,11 @@ void log_rule2(const char *func, size_t line, const char *rule, chunk_t *first, 
 #ifdef SUPER_LOG
 
 
-void log_rule3(const char *func, size_t line, const char *rule)
+void log_rule3(log_sev_t sev, const char *func, size_t line, const char *rule)
 #else
 
 
-void log_rule3(const char *func, const char *rule)
+void log_rule3(log_sev_t sev, const char *func, const char *rule)
 #endif
 {
    // some Windows platforms provide a qualified function name ("ABC::XYZ::function_Name")
@@ -45,9 +46,9 @@ void log_rule3(const char *func, const char *rule)
    func = get_unqualified_func_name(func);
 
 #ifdef SUPER_LOG
-   LOG_FMT(LSPACE, "log_rule(%s:%zu): rule is '%s'\n", func, line, rule);
+   LOG_FMT(sev, "log_rule(%s:%zu): rule is '%s'\n", func, line, rule);
 #else
-   LOG_FMT(LSPACE, "log_rule(%s): rule is '%s'\n", func, rule);
+   LOG_FMT(sev, "log_rule(%s): rule is '%s'\n", func, rule);
 #endif
 }
 

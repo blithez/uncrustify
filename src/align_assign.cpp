@@ -14,6 +14,8 @@
 #include "log_rules.h"
 #include "uncrustify.h"
 
+constexpr static auto LCURRENT = LALASS;
+
 using namespace uncrustify;
 
 
@@ -29,8 +31,10 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
    }
    size_t my_level = first->level;
 
+   char   copy[1000];
+
    LOG_FMT(LALASS, "%s(%d): [my_level is %zu]: start checking with '%s', on orig_line %zu, span is %zu, thresh is %zu\n",
-           __func__, __LINE__, my_level, first->text(), first->orig_line, span, thresh);
+           __func__, __LINE__, my_level, first->elided_text(copy), first->orig_line, span, thresh);
 
    // If we are aligning on a tabstop, we shouldn't right-align
    AlignStack as;    // regular assigns
@@ -63,7 +67,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
    while (pc != nullptr)
    {
       LOG_FMT(LALASS, "%s(%d): orig_line is %zu, check pc->text() '%s', type is %s, parent_type is %s\n",
-              __func__, __LINE__, pc->orig_line, pc->text(), get_token_name(pc->type), get_token_name(get_chunk_parent_type(pc)));
+              __func__, __LINE__, pc->orig_line, pc->elided_text(copy), get_token_name(pc->type), get_token_name(get_chunk_parent_type(pc)));
 
       // Don't check inside SPAREN, PAREN or SQUARE groups
       if (  chunk_is_token(pc, CT_SPAREN_OPEN)
@@ -96,7 +100,8 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
       }
 
       // Recurse if a brace set is found
-      if (chunk_is_token(pc, CT_BRACE_OPEN) || chunk_is_token(pc, CT_VBRACE_OPEN))
+      if (  chunk_is_token(pc, CT_BRACE_OPEN)
+         || chunk_is_token(pc, CT_VBRACE_OPEN))
       {
          size_t myspan;
          size_t mythresh;
@@ -117,7 +122,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
             log_rule_B("align_assign_thresh");
             mythresh = options::align_assign_thresh();
          }
-         pc = align_assign(chunk_get_next_ncnl(pc), myspan, mythresh, &sub_nl_count);
+         pc = align_assign(chunk_get_next_ncnnl(pc), myspan, mythresh, &sub_nl_count);
 
          if (sub_nl_count > 0)
          {
@@ -141,7 +146,8 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
       }
 
       // Done with this brace set?
-      if (chunk_is_token(pc, CT_BRACE_CLOSE) || chunk_is_token(pc, CT_VBRACE_CLOSE))
+      if (  chunk_is_token(pc, CT_BRACE_CLOSE)
+         || chunk_is_token(pc, CT_VBRACE_CLOSE))
       {
          pc = chunk_get_next(pc);
          break;
